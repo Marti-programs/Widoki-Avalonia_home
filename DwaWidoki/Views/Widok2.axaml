@@ -5,11 +5,27 @@
              xmlns:vm="using:Avalonia_home.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Avalonia_home.Views.Widok2"
-             x:DataType="vm:MainWindowViewModel">
-    <StackPanel>
-        <Label Margin="10">Kalendarz</Label>
-		<Button Margin="10" Command="{Binding OnClick1}" FontSize="10" Foreground="White">Home</Button>
-		<Button Margin="10" Command="{Binding OnClick2}" FontSize="10" Foreground="White">Kalendarz</Button>
-    </StackPanel> 
+             x:DataType="vm:MainWindowViewModel"
+			 Background="Gray">
+	
+	<Grid>
+		<StackPanel Margin="20">
+			<Label Margin="0 10" FontSize="20">Kalendarz</Label>
+		</StackPanel>
+
+		<StackPanel HorizontalAlignment="Center"
+					VerticalAlignment="Center">
+			<Label Margin="0 10" FontSize="20">Wyświetlanie kalendarza</Label>
+		</StackPanel>
+
+		<StackPanel Orientation="Horizontal"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Bottom"
+				Margin="10"
+				Spacing="10">
+			<Button Command="{Binding OnClick1}" FontSize="10" Foreground="White">Home</Button>
+			<Button Command="{Binding OnClick2}" FontSize="10" Foreground="White">Kalendarz</Button>
+		</StackPanel>
+	</Grid>
 
 </UserControl>
