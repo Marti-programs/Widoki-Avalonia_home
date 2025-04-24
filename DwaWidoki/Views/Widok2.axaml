@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Avalonia_home.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Avalonia_home.Views.Widok2"
+             x:DataType="vm:MainWindowViewModel">
+    <StackPanel>
+        <Label Margin="10">Kalendarz</Label>
+		<Button Margin="10" Command="{Binding OnClick1}" FontSize="10" Foreground="White">Home</Button>
+		<Button Margin="10" Command="{Binding OnClick2}" FontSize="10" Foreground="White">Kalendarz</Button>
+    </StackPanel> 
+
+</UserControl>
