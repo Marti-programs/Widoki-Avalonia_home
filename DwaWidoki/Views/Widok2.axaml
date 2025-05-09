@@ -25,6 +25,7 @@
 				Spacing="10">
 			<Button Command="{Binding OnClick1}" FontSize="10" Foreground="White">Home</Button>
 			<Button Command="{Binding OnClick2}" FontSize="10" Foreground="White">Kalendarz</Button>
+			<Button Command="{Binding OnClick3}" FontSize="10" Foreground="White">Zadania</Button>
 		</StackPanel>
 	</Grid>
 

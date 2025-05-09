@@ -11,6 +11,7 @@ public partial class MainWindowViewModel : ObservableObject
     private INumberRegister _numberRegister;
     private Widok1 _view1;
     private Widok2 _view2;
+    private Widok3 _view3; 
     private Window? _mainWindow;
     [ObservableProperty] private int _number;
 
@@ -27,6 +28,7 @@ public partial class MainWindowViewModel : ObservableObject
         _numberRegister = numberRegister;
         _view1 = widokCreator.CreateWidok1(this);
         _view2 = widokCreator.CreateWidok2(this);
+        _view3 = widokCreator.CreateWidok3(this);
         Number = 0;
     }
 
@@ -51,7 +53,13 @@ public partial class MainWindowViewModel : ObservableObject
     {
         ChangeToView(_view2);
     }
-    
+
+    [RelayCommand]
+    public void OnClick3()
+    {
+        ChangeToView(_view3);
+    }
+
     [RelayCommand]
     public void Zapisz()
     {

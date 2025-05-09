@@ -13,4 +13,9 @@ public class WidokCreator
     {
         return new Widok2(viewModel);
     }
+
+    public Widok3 CreateWidok3(MainWindowViewModel viewModel)
+    {
+        return new Widok3(viewModel);
+    }
 }
