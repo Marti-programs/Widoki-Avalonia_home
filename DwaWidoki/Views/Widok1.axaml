@@ -12,13 +12,32 @@
         <vm:DoubleToIntConverter x:Key="DoubleToIntConverter" />
     </UserControl.Resources>
 	<Grid>
-		<StackPanel Margin="20">
-			<Label Margin="0 10" FontSize="20">Główny widok</Label>
-		</StackPanel>
+		<StackPanel Orientation="Vertical"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="20">
 
-		<StackPanel HorizontalAlignment="Center"
-					VerticalAlignment="Center">
-			<Label Margin="0 10" FontSize="20">Treść</Label>
+			<!-- Wyśrodkowany napis "Pszczyna" -->
+			<TextBlock Text="Pszczyna"
+					   Foreground="White"
+					   FontSize="20"
+					   FontWeight="SemiBold"
+					   HorizontalAlignment="Center"/>
+
+			<!-- Obrazek -->
+			<Image Width="150" Height="150"
+				   Source="{Binding WeatherIcon}"
+				   Stretch="Uniform"
+				   HorizontalAlignment="Center"/>
+
+			<!-- Wyśrodkowany tekst pod obrazkiem -->
+			<TextBlock Text="{Binding WeatherInfo}"
+					   Foreground="White"
+					   FontWeight="Bold"
+					   TextWrapping="Wrap"
+					   TextAlignment="Center"
+					   HorizontalAlignment="Center"
+					   MaxWidth="150"/>
 		</StackPanel>
 		
 		<StackPanel Orientation="Horizontal"
