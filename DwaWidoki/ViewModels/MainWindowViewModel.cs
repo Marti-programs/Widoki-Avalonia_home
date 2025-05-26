@@ -8,6 +8,7 @@ using Avalonia.Media.Imaging;
 using System.IO;
 using System.Net.Http;
 using System;
+using System.Collections.ObjectModel;
 
 namespace Avalonia_home.ViewModels;
 
@@ -22,6 +23,8 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _weatherInfo = "Ładowanie pogody...";
     [ObservableProperty] private string _weatherIconUrl = "";
     [ObservableProperty] private Bitmap? _weatherIcon; //Bitmapa ponieważ URL jest szukany na kompie
+    public ObservableCollection<Zadanie> Zadania { get; } = new();
+    private readonly ZadaniaService _zadaniaService;
 
     private void ChangeToView(UserControl view)
     {
@@ -33,6 +36,8 @@ public partial class MainWindowViewModel : ObservableObject
     
     public MainWindowViewModel(WidokCreator widokCreator, INumberRegister numberRegister)
     {
+        string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Studia\\ProjektAvalonia.mdf;Integrated Security=True;Connect Timeout=30";
+
         _numberRegister = numberRegister;
         _view1 = widokCreator.CreateWidok1(this);
         _view2 = widokCreator.CreateWidok2(this);
@@ -40,6 +45,9 @@ public partial class MainWindowViewModel : ObservableObject
         Number = 0;
 
         _ = LoadWeatherAsync();
+
+        _zadaniaService = new ZadaniaService(connectionString);
+        _ = WczytajZadaniaAsync();
     }
 
     public void SetMainWindow(Window mainWindow)
@@ -103,5 +111,19 @@ public partial class MainWindowViewModel : ObservableObject
             WeatherInfo = "Nie udało się pobrać pogody.";
             WeatherIcon = null;
         }
+    }
+    private async Task WczytajZadaniaAsync()
+    {
+        var lista = await _zadaniaService.PobierzZadaniaAsync();
+
+        Zadania.Clear();
+        foreach (var zadanie in lista)
+            Zadania.Add(zadanie);
+
+        if (Zadania.Count == 0)
+        {
+            Zadania.Add(new Zadanie { Nazwa = "TEST", Zrobione = false });
+        }
+
     }
 }
