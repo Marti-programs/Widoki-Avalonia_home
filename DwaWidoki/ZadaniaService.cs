@@ -23,7 +23,7 @@ public class ZadaniaService
         using var connection = new SqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        var command = new SqlCommand("SELECT Id, Nazwa, Zrobione FROM ZadaniaDoZrobienia", connection);
+        var command = new SqlCommand("SELECT Id, Nazwa, Zrobione FROM ZadaniaDoZrobienia WHERE Zrobione = 0", connection);
         var reader = await command.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())

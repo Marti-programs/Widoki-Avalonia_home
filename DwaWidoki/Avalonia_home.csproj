@@ -28,6 +28,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Update="Views\Formularz.axaml.cs">
+        <DependentUpon>Formularz.axaml</DependentUpon>
+      </Compile>
       <Compile Update="Views\Widok3.axaml.cs">
         <DependentUpon>Widok3.axaml</DependentUpon>
       </Compile>
