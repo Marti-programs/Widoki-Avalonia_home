@@ -1,11 +1,33 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style Selector="Button.AccentButtonStyle">
-        <Setter Property="Background" Value="#444" />
-        <Setter Property="Foreground" Value="White" />
-    </Style>
-	<Style Selector="Button.LocalButtonStyle">
-		<Setter Property="Background" Value="#363030" />
-		<Setter Property="Foreground" Value="White" />
+
+	<!-- przyciski akcentowe – ciemnoszare -->
+	<Style Selector="Button.AccentButtonStyle">
+		<Setter Property="Background" Value="#555555"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="Padding" Value="8,4"/>
+		<Setter Property="CornerRadius" Value="4"/>
+		<Setter Property="BorderBrush" Value="#444444"/>
+		<Setter Property="BorderThickness" Value="1"/>
 	</Style>
+
+	<!-- przycisk lokalny (aktywna zakładka) – jeszcze ciemniejszy -->
+	<Style Selector="Button.LocalButtonStyle">
+		<Setter Property="Background" Value="#222222"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="Padding" Value="8,4"/>
+		<Setter Property="CornerRadius" Value="4"/>
+		<Setter Property="BorderBrush" Value="#111111"/>
+		<Setter Property="BorderThickness" Value="1"/>
+	</Style>
+
+	<!-- kafelek pojedynczego dnia -->
+	<Style Selector="Border.DayTileStyle">
+		<Setter Property="CornerRadius" Value="4"/>
+		<Setter Property="BorderBrush" Value="#CCC"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="Background" Value="White"/>
+		<Setter Property="Padding" Value="0"/>
+	</Style>
+
 </Styles>

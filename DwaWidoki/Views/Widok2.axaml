@@ -1,90 +1,116 @@
 <UserControl
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:Avalonia_home.ViewModels"
-    xmlns:models="clr-namespace:Avalonia_home.Models"
-    x:Class="Avalonia_home.Views.Widok2"
-    x:DataType="vm:MainWindowViewModel"
-    Background="Gray">
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:models="clr-namespace:Avalonia_home.Models"
+  xmlns:vm="clr-namespace:Avalonia_home.ViewModels"
+  x:Class="Avalonia_home.Views.Widok2"
+  x:DataType="vm:MainWindowViewModel"
+  Background="Gray">
 
-	<Grid Margin="0">
+	<Grid Margin="16">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
+			<!-- nagłówek miesiąca -->
 			<RowDefinition Height="Auto"/>
+			<!-- statyczny wiersz dni tygodnia -->
+			<RowDefinition Height="*"/>
+			<!-- siatka dni -->
+			<RowDefinition Height="Auto"/>
+			<!-- nawigacja -->
 		</Grid.RowDefinitions>
 
-		<!-- Tytuł -->
-		<Label Grid.Row="0" FontSize="20" Content="Kalendarz" HorizontalAlignment="Center"/>
-
-		<!-- Główna siatka miesięczna -->
-		<ItemsControl
-		  Grid.Row="1"
-		  ItemsSource="{Binding Tygodnie}"
+		<!-- 1) Nagłówek miesiąca -->
+		<TextBlock
+		  Grid.Row="0"
+		  Text="Lipiec 2025"
+		  FontSize="24"
+		  FontWeight="Bold"
 		  HorizontalAlignment="Center"
-		  Margin="0"
-		  Padding="0">
+		  Margin="0,0,0,12"/>
 
-			<!-- każdy element to jeden tydzień (tydzień = wiersz) -->
+		<!-- 2) Statyczne nagłówki dni tygodnia -->
+		<UniformGrid
+		  Grid.Row="1"
+		  Columns="7"
+		  ColumnSpacing="8"
+		  HorizontalAlignment="Center"
+		  Margin="0,0,0,8">
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Pon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Wt"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Śr"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Czw" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Pt"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="So"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Width="100" Height="32" Background="Transparent">
+				<TextBlock Text="Nd"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+		</UniformGrid>
+
+		<!-- 3) Twoja dynamiczna siatka dni -->
+		<ItemsControl
+		  Grid.Row="2"
+		  ItemsSource="{Binding Tygodnie}"
+		  HorizontalAlignment="Center">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<StackPanel Orientation="Vertical" />
+					<StackPanel Orientation="Vertical" Spacing="8"/>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
-
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<!-- w każdym wierszu tworzymy 7-kolumnową siatkę -->
 					<ItemsControl
 					  ItemsSource="{Binding}"
-					  HorizontalAlignment="Left"
-					  Margin="0"
-					  Padding="0">
-
+					  HorizontalAlignment="Center">
 						<ItemsControl.ItemsPanel>
 							<ItemsPanelTemplate>
 								<UniformGrid
 								  Columns="7"
-								  RowSpacing="1"
-								  ColumnSpacing="0"/>
+								  ColumnSpacing="8"
+								  RowSpacing="8"/>
 							</ItemsPanelTemplate>
 						</ItemsControl.ItemsPanel>
-
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:DzienWidoku">
 								<Border
-								  BorderBrush="Black"
-								  BorderThickness="1"
-								  Background="White"
+								  Classes="DayTileStyle"
 								  Width="100"
-								  Height="80"
-								  Margin="0"
-								  Padding="0">
+								  Height="80">
 									<TextBlock
 									  Text="{Binding DzienTekst}"
-									  HorizontalAlignment="Center"
-									  VerticalAlignment="Center"
-									  TextWrapping="Wrap" />
+									  HorizontalAlignment="Left"
+									  VerticalAlignment="Top"
+									  Margin="6"/>
 								</Border>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
-
 					</ItemsControl>
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>
 
-		<!-- Nawigacja -->
+		<!-- 4) Pasek nawigacji -->
 		<StackPanel
-		  Grid.Row="2"
+		  Grid.Row="3"
 		  Orientation="Horizontal"
 		  HorizontalAlignment="Left"
 		  VerticalAlignment="Bottom"
-		  Margin="10"
+		  Margin="0,16,0,0"
 		  Spacing="10">
-			<Button Command="{Binding OnClick1}" Classes="AccentButtonStyle" Margin="0">Home</Button>
-			<Button Command="{Binding OnClick2}" Classes="AccentButtonStyle" Margin="0">Kalendarz</Button>
-			<Button Command="{Binding OnClick3}" Classes="AccentButtonStyle" Margin="0">Zadania</Button>
+			<Button Command="{Binding OnClick1}" Classes="AccentButtonStyle">Home</Button>
+			<Button Command="{Binding OnClick2}" Classes="LocalButtonStyle">Kalendarz</Button>
+			<Button Command="{Binding OnClick3}" Classes="AccentButtonStyle">Zadania</Button>
 		</StackPanel>
 	</Grid>
 </UserControl>
