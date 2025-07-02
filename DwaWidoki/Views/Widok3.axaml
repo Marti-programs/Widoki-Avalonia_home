@@ -32,7 +32,7 @@
 				Spacing="10">
 			<Button Command="{Binding OnClick1}" Classes="AccentButtonStyle">Home</Button>
 			<Button Command="{Binding OnClick2}" Classes="AccentButtonStyle">Kalendarz</Button>
-			<Button Command="{Binding OnClick3}" Classes="AccentButtonStyle">Zadania</Button>
+			<Button Command="{Binding OnClick3}" Classes="LocalButtonStyle">Zadania</Button>
 		</StackPanel>
 	</Grid>
 

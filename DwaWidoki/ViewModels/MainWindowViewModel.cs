@@ -1,159 +1,223 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Avalonia_home.Models;
 using Avalonia_home.Views;
-using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
-using System.IO;
-using System.Net.Http;
-using System;
-using System.Collections.ObjectModel;
-using Microsoft.Data.SqlClient;
 
-namespace Avalonia_home.ViewModels;
-
-public partial class MainWindowViewModel : ObservableObject
+namespace Avalonia_home.ViewModels
 {
-    private INumberRegister _numberRegister;
-    private Widok1 _view1;
-    private Widok2 _view2;
-    private Widok3 _view3;
-    private Window? _mainWindow;
-
-    [ObservableProperty] private int _number;
-    [ObservableProperty] private string _weatherInfo = "Ładowanie pogody...";
-    [ObservableProperty] private string _weatherIconUrl = "";
-    [ObservableProperty] private Bitmap? _weatherIcon;
-
-    public ObservableCollection<Zadanie> Zadania { get; } = new();
-
-    [ObservableProperty]
-    private string nowaNazwaZadania;
-
-    private readonly string _connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Studia\\ProjektAvalonia.mdf;Integrated Security=True;Connect Timeout=30";
-    private readonly ZadaniaService _zadaniaService;
-
-    public MainWindowViewModel(WidokCreator widokCreator, INumberRegister numberRegister)
+    public partial class MainWindowViewModel : ObservableObject
     {
-        _numberRegister = numberRegister;
-        _view1 = widokCreator.CreateWidok1(this);
-        _view2 = widokCreator.CreateWidok2(this);
-        _view3 = widokCreator.CreateWidok3(this);
-        Number = 0;
+        private readonly INumberRegister _numberRegister;
+        private readonly Widok1 _view1;
+        private readonly Widok2 _view2;
+        private readonly Widok3 _view3;
+        private Window? _mainWindow;
 
-        _zadaniaService = new ZadaniaService(_connectionString);
-        _ = LoadWeatherAsync();
-        _ = WczytajZadaniaAsync();
-    }
+        [ObservableProperty] private int _number;
+        [ObservableProperty] private string _weatherInfo = "Ładowanie pogody...";
+        [ObservableProperty] private string _weatherIconUrl = "";
+        [ObservableProperty] private Bitmap? _weatherIcon;
+        [ObservableProperty] private string _nowaNazwaZadania;
 
-    public void SetMainWindow(Window mainWindow)
-    {
-        _mainWindow = mainWindow;
-    }
+        public ObservableCollection<Zadanie> Zadania { get; } = new();
+        public ObservableCollection<ObservableCollection<DzienWidoku>> Tygodnie { get; }
+            = new ObservableCollection<ObservableCollection<DzienWidoku>>();
 
-    public void Init()
-    {
-        ChangeToView(_view1);
-    }
+        private const string ConnectionString =
+            "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Studia\\ProjektAvalonia.mdf;" +
+            "Integrated Security=True;Connect Timeout=30";
 
-    private void ChangeToView(UserControl view)
-    {
-        if (_mainWindow != null)
+        private readonly ZadaniaService _zadaniaService;
+
+        public MainWindowViewModel(WidokCreator widokCreator, INumberRegister numberRegister)
         {
-            _mainWindow.Content = view;
+            _numberRegister = numberRegister;
+            _zadaniaService = new ZadaniaService(ConnectionString);
+
+            _view1 = widokCreator.CreateWidok1(this);
+            _view2 = widokCreator.CreateWidok2(this);
+            _view3 = widokCreator.CreateWidok3(this);
+
+            Number = 0;
+            _ = LoadWeatherAsync();
+            _ = WczytajZadaniaAsync();
+            _ = WczytajDniKalendarzaAsync();
         }
-    }
 
-    [RelayCommand]
-    public void OnClick1() => ChangeToView(_view1);
+        public void SetMainWindow(Window mainWindow) => _mainWindow = mainWindow;
 
-    [RelayCommand]
-    public void OnClick2() => ChangeToView(_view2);
+        public void Init() => ChangeToView(_view1);
 
-    [RelayCommand]
-    public void OnClick3() => ChangeToView(_view3);
-
-    [RelayCommand]
-    public void Zapisz()
-    {
-        _numberRegister.AddNumber(Number);
-    }
-
-    [RelayCommand]
-    public async Task LoadWeatherAsync()
-    {
-        var weatherService = new Weather();
-        var info = await weatherService.GetWeatherAsync("Pszczyna");
-        if (info != null)
+        private void ChangeToView(UserControl view)
         {
-            WeatherInfo = info.Description;
+            if (_mainWindow != null)
+                _mainWindow.Content = view;
+        }
 
-            try
+        [RelayCommand]
+        public void OnClick1() => ChangeToView(_view1);
+
+        [RelayCommand]
+        public void OnClick2() => ChangeToView(_view2);
+
+        [RelayCommand]
+        public void OnClick3() => ChangeToView(_view3);
+
+        [RelayCommand]
+        public void Zapisz() => _numberRegister.AddNumber(Number);
+
+        [RelayCommand]
+        public async Task LoadWeatherAsync()
+        {
+            var weatherService = new Weather();
+            var info = await weatherService.GetWeatherAsync("Pszczyna");
+
+            if (info != null)
             {
-                using var httpClient = new HttpClient();
-                var imageBytes = await httpClient.GetByteArrayAsync(info.IconUrl);
-                using var ms = new MemoryStream(imageBytes);
-                WeatherIcon = new Bitmap(ms);
+                WeatherInfo = info.Description;
+                try
+                {
+                    using var httpClient = new HttpClient();
+                    var bytes = await httpClient.GetByteArrayAsync(info.IconUrl);
+                    using var ms = new MemoryStream(bytes);
+                    WeatherIcon = new Bitmap(ms);
+                }
+                catch
+                {
+                    WeatherIcon = null;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Błąd ładowania ikony: {ex.Message}");
+                WeatherInfo = "Nie udało się pobrać pogody.";
                 WeatherIcon = null;
             }
         }
-        else
-        {
-            WeatherInfo = "Nie udało się pobrać pogody.";
-            WeatherIcon = null;
-        }
-    }
 
-    private async Task WczytajZadaniaAsync()
-    {
-        var lista = await _zadaniaService.PobierzZadaniaAsync();
-
-        Zadania.Clear();
-        foreach (var zadanie in lista)
+        private async Task WczytajZadaniaAsync()
         {
-            Zadania.Add(zadanie);
+            var lista = await _zadaniaService.PobierzZadaniaAsync();
+            Zadania.Clear();
+            foreach (var z in lista)
+                Zadania.Add(z);
+
+            if (!Zadania.Any())
+                Zadania.Add(new Zadanie { Nazwa = "TEST", Zrobione = false });
         }
 
-        if (Zadania.Count == 0)
+        [RelayCommand]
+        public async Task DodajZadanieAsync()
         {
-            Zadania.Add(new Zadanie { Nazwa = "TEST", Zrobione = false });
+            if (string.IsNullOrWhiteSpace(NowaNazwaZadania))
+                return;
+
+            var nowe = new Zadanie { Nazwa = NowaNazwaZadania, Zrobione = false };
+
+            try
+            {
+                using var conn = new SqlConnection(ConnectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand(
+                    "INSERT INTO ZadaniaDoZrobienia (Nazwa, Zrobione) VALUES (@nazwa, @zrobione)",
+                    conn);
+                cmd.Parameters.AddWithValue("@nazwa", nowe.Nazwa);
+                cmd.Parameters.AddWithValue("@zrobione", nowe.Zrobione);
+                await cmd.ExecuteNonQueryAsync();
+
+                Zadania.Add(nowe);
+                NowaNazwaZadania = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd dodawania zadania: {ex.Message}");
+            }
         }
-    }
 
-    [RelayCommand]
-    public async Task DodajZadanieAsync()
-    {
-        if (string.IsNullOrWhiteSpace(NowaNazwaZadania))
-            return;
-
-        var noweZadanie = new Zadanie
+        public async Task WczytajDniKalendarzaAsync()
         {
-            Nazwa = NowaNazwaZadania,
-            Zrobione = false
-        };
+            try
+            {
+                // 1. Pobierz wpisy z bazy
+                var wpisy = new List<WpisKalendarza>();
+                using var conn = new SqlConnection(ConnectionString);
+                await conn.OpenAsync();
+                using var cmd = new SqlCommand("SELECT Nazwa, Data_wyd, Kolor FROM Kalendarz", conn);
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    wpisy.Add(new WpisKalendarza
+                    {
+                        Nazwa = reader.GetString(0),
+                        Data_wyd = reader.GetDateTime(1),
+                        Kolor = reader.GetString(2)
+                    });
+                }
 
-        try
-        {
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
+                // 2. Stwórz siatkę dni dla bieżącego miesiąca
+                GenerateMonthGrid(DateTime.Now.Year, DateTime.Now.Month);
 
-            var command = new SqlCommand("INSERT INTO ZadaniaDoZrobienia (Nazwa, Zrobione) VALUES (@nazwa, @zrobione)", connection);
-            command.Parameters.AddWithValue("@nazwa", noweZadanie.Nazwa);
-            command.Parameters.AddWithValue("@zrobione", noweZadanie.Zrobione);
-            await command.ExecuteNonQueryAsync();
+                // 3. Grupuj wpisy i nakładaj na odpowiednie dni
+                var grouped = wpisy
+                    .GroupBy(w => w.Data_wyd.Day)
+                    .ToDictionary(g => g.Key, g => g.ToList());
 
-            Zadania.Add(noweZadanie);
-            NowaNazwaZadania = string.Empty;
+                foreach (var tydzien in Tygodnie)
+                {
+                    foreach (var dzien in tydzien)
+                    {
+                        if (int.TryParse(dzien.DzienTekst, out int dayNum)
+                            && grouped.TryGetValue(dayNum, out var ev))
+                        {
+                            dzien.Kolor = ev.First().Kolor;
+                            dzien.DzienTekst = $"{dayNum}\n{ev.Count} wydarzeń";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd ładowania kalendarza: {ex.Message}");
+            }
         }
-        catch (Exception ex)
+
+        private void GenerateMonthGrid(int year, int month)
         {
-            Console.WriteLine($"Błąd dodawania zadania: {ex.Message}");
+            Tygodnie.Clear();
+            var firstDay = new DateTime(year, month, 1);
+            int offset = ((int)firstDay.DayOfWeek + 6) % 7; // poniedziałek = 0
+            int days = DateTime.DaysInMonth(year, month);
+
+            var buffer = new List<DzienWidoku>();
+
+            // pustki przed 1.
+            for (int i = 0; i < offset; i++)
+                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "Transparent" });
+
+            // dni miesiąca
+            for (int d = 1; d <= days; d++)
+                buffer.Add(new DzienWidoku { DzienTekst = d.ToString(), Kolor = "White" });
+
+            // dopełnij do pełnych tygodni
+            while (buffer.Count % 7 != 0)
+                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "Transparent" });
+
+            // podziel na tygodnie
+            for (int i = 0; i < buffer.Count; i += 7)
+            {
+                var tydzien = new ObservableCollection<DzienWidoku>(
+                    buffer.Skip(i).Take(7));
+                Tygodnie.Add(tydzien);
+            }
         }
-         
     }
 }
