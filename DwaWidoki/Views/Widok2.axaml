@@ -12,86 +12,97 @@
 			<RowDefinition Height="Auto"/>
 			<!-- nagłówek miesiąca -->
 			<RowDefinition Height="Auto"/>
-			<!-- statyczny wiersz dni tygodnia -->
+			<!-- dni tygodnia -->
 			<RowDefinition Height="*"/>
 			<!-- siatka dni -->
 			<RowDefinition Height="Auto"/>
 			<!-- nawigacja -->
 		</Grid.RowDefinitions>
 
-		<!-- 1) Nagłówek miesiąca -->
-		<TextBlock
-		  Grid.Row="0"
-		  Text="Lipiec 2025"
-		  FontSize="24"
-		  FontWeight="Bold"
-		  HorizontalAlignment="Center"
-		  Margin="0,0,0,12"/>
+		<!-- 1) Nagłówek -->
+		<TextBlock Grid.Row="0"
+				   Text="Lipiec 2025"
+				   FontSize="24"
+				   FontWeight="Bold"
+				   HorizontalAlignment="Center"
+				   Margin="0,0,0,12"/>
 
-		<!-- 2) Statyczne nagłówki dni tygodnia -->
-		<UniformGrid
-		  Grid.Row="1"
-		  Columns="7"
-		  ColumnSpacing="8"
-		  HorizontalAlignment="Center"
-		  Margin="0,0,0,8">
-			<Border Width="100" Height="32" Background="Transparent">
+		<!-- 2) Statyczny nagłówek dni tygodnia -->
+		<UniformGrid Grid.Row="1"
+					 Columns="7"
+					 ColumnSpacing="8"
+					 HorizontalAlignment="Center"
+					 Margin="0,0,0,8">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Pon" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Wt"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Śr"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Czw" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Pt"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="So"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
-			<Border Width="100" Height="32" Background="Transparent">
+			<Border Width="100" Height="32">
 				<TextBlock Text="Nd"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
 		</UniformGrid>
 
-		<!-- 3) Twoja dynamiczna siatka dni -->
-		<ItemsControl
-		  Grid.Row="2"
-		  ItemsSource="{Binding Tygodnie}"
-		  HorizontalAlignment="Center">
+		<!-- 3) Dynamiczna siatka dni z wydarzeniami -->
+		<ItemsControl Grid.Row="2"
+					  ItemsSource="{Binding Tygodnie}"
+					  HorizontalAlignment="Center">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<StackPanel Orientation="Vertical" Spacing="8"/>
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
+
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
-					<ItemsControl
-					  ItemsSource="{Binding}"
-					  HorizontalAlignment="Center">
+					<ItemsControl ItemsSource="{Binding}" HorizontalAlignment="Center">
 						<ItemsControl.ItemsPanel>
 							<ItemsPanelTemplate>
-								<UniformGrid
-								  Columns="7"
-								  ColumnSpacing="8"
-								  RowSpacing="8"/>
+								<UniformGrid Columns="7" ColumnSpacing="8" RowSpacing="8"/>
 							</ItemsPanelTemplate>
 						</ItemsControl.ItemsPanel>
+
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:DzienWidoku">
-								<Border
-								  Classes="DayTileStyle"
-								  Width="100"
-								  Height="80">
-									<TextBlock
-									  Text="{Binding DzienTekst}"
-									  HorizontalAlignment="Left"
-									  VerticalAlignment="Top"
-									  Margin="6"/>
+								<Border Width="100"
+										MinHeight="80"
+										Padding="4"
+										CornerRadius="4"
+										BorderThickness="1"
+										BorderBrush="#CCC"
+										Background="{Binding Kolor}">
+									<StackPanel>
+										<!-- Numer dnia -->
+										<TextBlock Text="{Binding DzienTekst}"
+												   FontWeight="Bold"
+												   HorizontalAlignment="Left"
+												   Margin="0,0,0,4"/>
+
+										<!-- Lista wydarzeń -->
+										<ItemsControl ItemsSource="{Binding Wydarzenia}">
+											<ItemsControl.ItemTemplate>
+												<DataTemplate>
+													<TextBlock Text="{Binding}"
+															   FontSize="11"
+															   TextWrapping="Wrap"
+															   Foreground="#333"/>
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+									</StackPanel>
 								</Border>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
@@ -101,13 +112,11 @@
 		</ItemsControl>
 
 		<!-- 4) Pasek nawigacji -->
-		<StackPanel
-		  Grid.Row="3"
-		  Orientation="Horizontal"
-		  HorizontalAlignment="Left"
-		  VerticalAlignment="Bottom"
-		  Margin="0,16,0,0"
-		  Spacing="10">
+		<StackPanel Grid.Row="3"
+					Orientation="Horizontal"
+					HorizontalAlignment="Left"
+					Margin="0,16,0,0"
+					Spacing="10">
 			<Button Command="{Binding OnClick1}" Classes="AccentButtonStyle">Home</Button>
 			<Button Command="{Binding OnClick2}" Classes="LocalButtonStyle">Kalendarz</Button>
 			<Button Command="{Binding OnClick3}" Classes="AccentButtonStyle">Zadania</Button>

@@ -8,6 +8,8 @@ namespace Avalonia_home.Models;
 
 public class DzienWidoku
 {
-    public string DzienTekst { get; set; } = string.Empty;
-    public string Kolor { get; set; } = "White";
+    public string DzienTekst { get; set; } = "";
+    public string Kolor { get; set; } = "White"; // domyślnie biały
+    public List<string> Wydarzenia { get; set; } = new();
 }
+

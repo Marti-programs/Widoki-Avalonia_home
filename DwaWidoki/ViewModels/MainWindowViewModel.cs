@@ -147,46 +147,45 @@ namespace Avalonia_home.ViewModels
         {
             try
             {
-                // 1. Pobierz wpisy z bazy
-                var wpisy = new List<WpisKalendarza>();
-                using var conn = new SqlConnection(ConnectionString);
-                await conn.OpenAsync();
-                using var cmd = new SqlCommand("SELECT Nazwa, Data_wyd, Kolor FROM Kalendarz", conn);
-                using var reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-                    wpisy.Add(new WpisKalendarza
-                    {
-                        Nazwa = reader.GetString(0),
-                        Data_wyd = reader.GetDateTime(1),
-                        Kolor = reader.GetString(2)
-                    });
-                }
+                // Pobierz wpisy z bazy danych
+                var wpisy = await new KalendarzService(ConnectionString)
+                    .PobierzWpisyZBazyAsync(DateTime.Now);
 
-                // 2. Stwórz siatkę dni dla bieżącego miesiąca
+                // Wygeneruj siatkę dni
                 GenerateMonthGrid(DateTime.Now.Year, DateTime.Now.Month);
 
-                // 3. Grupuj wpisy i nakładaj na odpowiednie dni
+                // Pogrupuj wpisy według dnia
                 var grouped = wpisy
                     .GroupBy(w => w.Data_wyd.Day)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
+                // Przypisz wydarzenia i kolory do dni
                 foreach (var tydzien in Tygodnie)
                 {
                     foreach (var dzien in tydzien)
                     {
+                        if (string.IsNullOrWhiteSpace(dzien.DzienTekst))
+                        {
+                            dzien.Kolor = "#E0E0E0"; // szary dla pustych pól
+                            continue;
+                        }
+
                         if (int.TryParse(dzien.DzienTekst, out int dayNum)
                             && grouped.TryGetValue(dayNum, out var ev))
                         {
-                            dzien.Kolor = ev.First().Kolor;
-                            dzien.DzienTekst = $"{dayNum}\n{ev.Count} wydarzeń";
+                            dzien.Wydarzenia = ev.Select(e => e.Nazwa).ToList();
+                            dzien.Kolor = "#D9EAFB"; // niebieski jeśli są wydarzenia
+                        }
+                        else
+                        {
+                            dzien.Kolor = "White"; // domyślny biały dzień bez wydarzeń
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Błąd ładowania kalendarza: {ex.Message}");
+                Console.WriteLine($"Błąd ładowania wydarzeń: {ex.Message}");
             }
         }
 
@@ -201,7 +200,7 @@ namespace Avalonia_home.ViewModels
 
             // pustki przed 1.
             for (int i = 0; i < offset; i++)
-                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "Transparent" });
+                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "#E0E0E0" });
 
             // dni miesiąca
             for (int d = 1; d <= days; d++)
@@ -209,7 +208,7 @@ namespace Avalonia_home.ViewModels
 
             // dopełnij do pełnych tygodni
             while (buffer.Count % 7 != 0)
-                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "Transparent" });
+                buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "#E0E0E0" });
 
             // podziel na tygodnie
             for (int i = 0; i < buffer.Count; i += 7)
