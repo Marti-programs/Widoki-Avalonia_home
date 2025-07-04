@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -25,13 +26,13 @@ namespace Avalonia_home.ViewModels
 
         [ObservableProperty] private int _number;
         [ObservableProperty] private string _weatherInfo = "Ładowanie pogody...";
-        [ObservableProperty] private string _weatherIconUrl = "";
         [ObservableProperty] private Bitmap? _weatherIcon;
         [ObservableProperty] private string _nowaNazwaZadania;
 
         public ObservableCollection<Zadanie> Zadania { get; } = new();
         public ObservableCollection<ObservableCollection<DzienWidoku>> Tygodnie { get; }
             = new ObservableCollection<ObservableCollection<DzienWidoku>>();
+        public ObservableCollection<string> NajblizszeWydarzenia { get; } = new();
 
         private const string ConnectionString =
             "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\Studia\\ProjektAvalonia.mdf;" +
@@ -147,26 +148,22 @@ namespace Avalonia_home.ViewModels
         {
             try
             {
-                // Pobierz wpisy z bazy danych
                 var wpisy = await new KalendarzService(ConnectionString)
                     .PobierzWpisyZBazyAsync(DateTime.Now);
 
-                // Wygeneruj siatkę dni
                 GenerateMonthGrid(DateTime.Now.Year, DateTime.Now.Month);
 
-                // Pogrupuj wpisy według dnia
                 var grouped = wpisy
                     .GroupBy(w => w.Data_wyd.Day)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
-                // Przypisz wydarzenia i kolory do dni
                 foreach (var tydzien in Tygodnie)
                 {
                     foreach (var dzien in tydzien)
                     {
                         if (string.IsNullOrWhiteSpace(dzien.DzienTekst))
                         {
-                            dzien.Kolor = "#E0E0E0"; // szary dla pustych pól
+                            dzien.Kolor = "#E0E0E0";
                             continue;
                         }
 
@@ -174,14 +171,16 @@ namespace Avalonia_home.ViewModels
                             && grouped.TryGetValue(dayNum, out var ev))
                         {
                             dzien.Wydarzenia = ev.Select(e => e.Nazwa).ToList();
-                            dzien.Kolor = "#D9EAFB"; // niebieski jeśli są wydarzenia
+                            dzien.Kolor = "#D9EAFB";
                         }
                         else
                         {
-                            dzien.Kolor = "White"; // domyślny biały dzień bez wydarzeń
+                            dzien.Kolor = "White";
                         }
                     }
                 }
+
+                ObliczNajblizszeWydarzenia(wpisy);
             }
             catch (Exception ex)
             {
@@ -189,28 +188,39 @@ namespace Avalonia_home.ViewModels
             }
         }
 
+        private void ObliczNajblizszeWydarzenia(List<WpisKalendarza> wpisy)
+        {
+            var teraz = DateTime.Now;
+            var lista = wpisy
+                .Where(w => w.Data_wyd >= teraz)
+                .OrderBy(w => w.Data_wyd)
+                .Take(5)
+                .Select(w => $"{w.Data_wyd:dd.MM} - {w.Nazwa}")
+                .ToList();
+
+            NajblizszeWydarzenia.Clear();
+            foreach (var ev in lista)
+                NajblizszeWydarzenia.Add(ev);
+        }
+
         private void GenerateMonthGrid(int year, int month)
         {
             Tygodnie.Clear();
             var firstDay = new DateTime(year, month, 1);
-            int offset = ((int)firstDay.DayOfWeek + 6) % 7; // poniedziałek = 0
+            int offset = ((int)firstDay.DayOfWeek + 6) % 7;
             int days = DateTime.DaysInMonth(year, month);
 
             var buffer = new List<DzienWidoku>();
 
-            // pustki przed 1.
             for (int i = 0; i < offset; i++)
                 buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "#E0E0E0" });
 
-            // dni miesiąca
             for (int d = 1; d <= days; d++)
                 buffer.Add(new DzienWidoku { DzienTekst = d.ToString(), Kolor = "White" });
 
-            // dopełnij do pełnych tygodni
             while (buffer.Count % 7 != 0)
                 buffer.Add(new DzienWidoku { DzienTekst = "", Kolor = "#E0E0E0" });
 
-            // podziel na tygodnie
             for (int i = 0; i < buffer.Count; i += 7)
             {
                 var tydzien = new ObservableCollection<DzienWidoku>(
