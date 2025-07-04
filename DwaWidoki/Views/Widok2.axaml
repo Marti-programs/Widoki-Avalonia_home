@@ -5,7 +5,7 @@
   xmlns:vm="clr-namespace:Avalonia_home.ViewModels"
   x:Class="Avalonia_home.Views.Widok2"
   x:DataType="vm:MainWindowViewModel"
-  Background="Gray">
+  Background="#2A2A2A">
 
 	<Grid Margin="16">
 		<Grid.RowDefinitions>
@@ -25,7 +25,8 @@
 				   FontSize="24"
 				   FontWeight="Bold"
 				   HorizontalAlignment="Center"
-				   Margin="0,0,0,12"/>
+				   Margin="0,0,0,12"
+				   Foreground="White"/>
 
 		<!-- 2) Statyczny nagłówek dni tygodnia -->
 		<UniformGrid Grid.Row="1"

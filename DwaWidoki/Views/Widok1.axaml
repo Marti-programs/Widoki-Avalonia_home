@@ -9,14 +9,14 @@
   d:DesignHeight="450"
   x:Class="Avalonia_home.Views.Widok1"
   x:DataType="vm:MainWindowViewModel"
-  Background="Gray">
+  Background="#2A2A2A">
 
 	<Grid>
-		<!-- podział na 3 kolumny: lewa (pogoda), środkowa (wydarzenia), dolna nawigacja -->
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
+
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
 			<ColumnDefinition Width="*"/>
@@ -27,10 +27,11 @@
 					Orientation="Vertical"
 					HorizontalAlignment="Left"
 					VerticalAlignment="Top"
-					Margin="20">
+					Margin="20"
+					Spacing="10">
 			<TextBlock Text="Pszczyna"
 					   Foreground="White"
-					   FontSize="20"
+					   FontSize="22"
 					   FontWeight="SemiBold"
 					   HorizontalAlignment="Center"/>
 
@@ -40,8 +41,9 @@
 				   HorizontalAlignment="Center"/>
 
 			<TextBlock Text="{Binding WeatherInfo}"
-					   Foreground="White"
+					   Foreground="#DDDDDD"
 					   FontWeight="Bold"
+					   FontSize="14"
 					   TextWrapping="Wrap"
 					   TextAlignment="Center"
 					   HorizontalAlignment="Center"
@@ -53,10 +55,10 @@
 					Orientation="Vertical"
 					VerticalAlignment="Center"
 					HorizontalAlignment="Center"
-					Margin="10"
+					Margin="20"
 					MaxWidth="300">
 			<TextBlock Text="Nadchodzące wydarzenia"
-					   FontSize="18"
+					   FontSize="20"
 					   FontWeight="SemiBold"
 					   Foreground="White"
 					   Margin="0,0,0,10"
@@ -65,21 +67,23 @@
 			<ItemsControl ItemsSource="{Binding NajblizszeWydarzenia}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding}"
-								   FontSize="14"
-								   Foreground="White"
-								   Margin="0,4,0,0"
-								   TextWrapping="Wrap"/>
+						<Border Classes="EventCardStyle">
+							<TextBlock Text="{Binding}"
+									   FontSize="14"
+									   Foreground="White"
+									   TextWrapping="Wrap"/>
+						</Border>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>
 		</StackPanel>
 
+		<!-- 🔘 Pasek nawigacji -->
 		<StackPanel Grid.Row="1" Grid.ColumnSpan="2"
 					Orientation="Horizontal"
 					HorizontalAlignment="Left"
-					Margin="10"
-					Spacing="10">
+					Margin="10,0,0,20"
+					Spacing="12">
 			<Button Command="{Binding OnClick1}" Classes="LocalButtonStyle">Home</Button>
 			<Button Command="{Binding OnClick2}" Classes="AccentButtonStyle">Kalendarz</Button>
 			<Button Command="{Binding OnClick3}" Classes="AccentButtonStyle">Zadania</Button>
